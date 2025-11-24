@@ -7,7 +7,7 @@ FPM_URL := http://localhost:8088
 
 .PHONY: k6 clean
 
-docker:
+pull-docker:
 	@echo "Pulling Docker images..."
 	docker pull redis:7-alpine
 	docker pull php:8.4-fpm

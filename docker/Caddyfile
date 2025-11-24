@@ -3,19 +3,12 @@
 	metrics
 
 	frankenphp {
+		num_threads 16 # 4 × CPU cores
+		max_threads auto # let FrankenPHP scale
+
 		worker {
 			file ./public/index.php
-			watch
-
-			num 1 # change number of worker
-
-			## Uncomment for incorrect config
-			# num_threads 16
-			# max_threads 8
-
-			## Uncomment for correct config
-			# num_threads 16
-			# max_threads 32
+			num 8 # 1 worker per CPU core
 		}
 
 		php_ini memory_limit 512M

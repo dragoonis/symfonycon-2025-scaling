@@ -9,7 +9,7 @@ const ENDPOINT = BASE_URL + '/en/products/projection';
 export let options = {
     insecureSkipTLSVerify: true,
     vus: 100,
-    iterations: 3000,
+    iterations: 500,
 };
 
 export default function () {

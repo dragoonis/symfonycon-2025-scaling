@@ -64,7 +64,7 @@ up:
 	docker-compose up -d redis
 
 down:
-	docker-compose up -d down
+	docker-compose down
 
 
 ps:

@@ -38,8 +38,7 @@ final class ProductProjectionRepository
         $projections = [];
         foreach ($allData as $data) {
             if ($data !== null) {
-                $decoded = unserialize($data);
-                $projections[] = $this->buildFromArray((array) $decoded);
+                $projections[] = unserialize($data);
             }
         }
 
@@ -68,16 +67,5 @@ final class ProductProjectionRepository
         }
 
         $this->redis->del(self::REDIS_ALL_KEY);
-    }
-
-    private function buildFromArray(array $data): ProductProjection
-    {
-        return new ProductProjection(
-            $data['id'],
-            $data['name'],
-            $data['description'],
-            $data['price'],
-            $data['createdAt']
-        );
     }
 }

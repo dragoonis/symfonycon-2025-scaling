@@ -26,6 +26,7 @@ services:
     tty: true
     environment:
       SERVER_NAME: ":8080 https://localhost:443"
+      CADDY_GLOBAL_OPTIONS: "admin 0.0.0.0:2019\n"
     networks:
       - app-net
 

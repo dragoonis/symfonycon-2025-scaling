@@ -6,7 +6,16 @@
 		worker {
 			file ./public/index.php
 			watch
+
 			num 1 # change number of worker
+
+			## Uncomment for incorrect config
+			# num_threads 16
+			# max_threads 8
+
+			## Uncomment for correct config
+			# num_threads 16
+			# max_threads 32
 		}
 
 		php_ini memory_limit 512M
@@ -15,8 +24,7 @@
 
 {$SERVER_NAME:localhost} {
 	root {$SERVER_ROOT:public/}
-	encode zstd br gzip
-
+	encode zstd br gzip 
 
 	{$CADDY_SERVER_EXTRA_DIRECTIVES}
 

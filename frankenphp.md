@@ -145,21 +145,21 @@ uncomment
 so it will looks like this
 
 ```caddyfile
-	frankenphp {
-		num_threads 20 # Optimal: 16 workers + 4 handling threads
-		max_threads auto # Keep stable, no dynamic scaling
+frankenphp {
+    num_threads 20 # Optimal: 16 workers + 4 handling threads
+    max_threads auto # Keep stable, no dynamic scaling
 
-		worker {
-		    watch
-		
-			file ./public/index.php
-			num 16 # 2 workers per CPU core (8 cores * 2) - optimal balance
-		}
-		
-		php_ini opcache.preload ""
-        php_ini opcache.revalidate_freq 0
-        php_ini opcache.validate_timestamps 1
-	}
+    worker {
+        watch
+    
+        file ./public/index.php
+        num 16 # 2 workers per CPU core (8 cores * 2) - optimal balance
+    }
+    
+    php_ini opcache.preload ""
+    php_ini opcache.revalidate_freq 0
+    php_ini opcache.validate_timestamps 1
+}
 ```
 
 why ?
@@ -202,6 +202,12 @@ frankenphp reload --config=/etc/frankenphp/Caddyfile
 ```
 
 Go to http://localhost:8081/en/blog/, if you reload it will hard reload the browser
+
+if you found it stuck at loading run command below in terminal
+
+```bash
+make down-worker && make up-worker
+```
 
 now let's open file ./src/Controller/BlogController.php
 

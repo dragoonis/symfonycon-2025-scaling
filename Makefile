@@ -115,7 +115,7 @@ franken-shell:
 	docker-compose exec -it franken bash
 
 worker-shell:
-	docker-compose exec -it franken bash
+	docker-compose exec -it franken-worker bash
 
 migrate: ## Run database migrations
 	docker-compose exec app php bin/console doctrine:migrations:migrate --no-interaction

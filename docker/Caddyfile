@@ -8,8 +8,15 @@
 		max_threads auto # Keep stable, no dynamic scaling
 
 		worker {
+			watch
+
 			file ./public/index.php
 			num 16 # 2 workers per CPU core (8 cores * 2) - optimal balance
+		}
+
+		php_ini {
+			opcache.enable 0
+			opcache.validate_timestamps 1
 		}
 	}
 }

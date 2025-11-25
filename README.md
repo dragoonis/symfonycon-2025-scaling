@@ -142,6 +142,9 @@ password: croatia
 make benchmark-product-random-fpm
 ```
 
+Output:
+![PHP-FPM Benchmark Results](docs/images/benchmark-product-random-fpm.png)
+
 see file inside k6/report-UTC-xxxxxxx.html
 > i.e: k6/report-product-by-id-random-8088-2025-11-25T10-45-06.548Z.html
 

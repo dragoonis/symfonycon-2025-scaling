@@ -4,6 +4,7 @@ K6_SERVICE := k6
 FRANKEN_URL := http://localhost:8080
 FRANKEN_WORKER_URL := http://localhost:8081
 FPM_URL := http://localhost:8088
+PRODUCT_ID := 105069
 
 .PHONY: k6 clean
 
@@ -14,7 +15,7 @@ pull-docker:
 	docker pull prom/prometheus:v2.53.4
 	docker pull grafana/grafana:latest
 	docker pull hipages/php-fpm_exporter:latest
-	docker pull dunglas/frankenphp
+	docker pull dunglas/frankenphp:php8.4-bookworm
 	@echo "All Docker images pulled successfully!"
 
 # Individual Docker image pull commands
@@ -282,6 +283,90 @@ k6-install:
 			echo "Please install k6 manually from https://k6.io/docs/getting-started/installation/"; \
 		fi; \
 	fi
+
+# Product by ID benchmark targets (single ID)
+.PHONY: benchmark-product-by-id-franken
+benchmark-product-by-id-franken:
+	@echo "Running product by ID benchmark against Franken (port 8080)..."
+	BASE_URL=$(FRANKEN_URL) PRODUCT_ID=$(PRODUCT_ID) k6 run k6/get_product_by_id.js
+
+.PHONY: benchmark-product-by-id-franken-worker
+benchmark-product-by-id-franken-worker:
+	@echo "Running product by ID benchmark against Franken Worker (port 8081)..."
+	BASE_URL=$(FRANKEN_WORKER_URL) PRODUCT_ID=$(PRODUCT_ID) k6 run k6/get_product_by_id.js
+
+.PHONY: benchmark-product-by-id-fpm
+benchmark-product-by-id-fpm:
+	@echo "Running product by ID benchmark against FPM (port 8088)..."
+	BASE_URL=$(FPM_URL) PRODUCT_ID=$(PRODUCT_ID) k6 run k6/get_product_by_id.js
+
+.PHONY: benchmark-product-by-id-all
+benchmark-product-by-id-all:
+	@echo "Running product by ID benchmarks against all environments..."
+	@echo ""
+	$(MAKE) benchmark-product-by-id-franken
+	@echo ""
+	@echo ""
+	$(MAKE) benchmark-product-by-id-franken-worker
+	@echo ""
+	@echo ""
+	$(MAKE) benchmark-product-by-id-fpm
+
+# Product by ID benchmark targets (random IDs from projection)
+.PHONY: benchmark-product-random-franken
+benchmark-product-random-franken:
+	@echo "Running random product ID benchmark against Franken (port 8080)..."
+	BASE_URL=$(FRANKEN_URL) k6 run k6/get_product_by_id_random.js
+
+.PHONY: benchmark-product-random-franken-worker
+benchmark-product-random-franken-worker:
+	@echo "Running random product ID benchmark against Franken Worker (port 8081)..."
+	BASE_URL=$(FRANKEN_WORKER_URL) k6 run k6/get_product_by_id_random.js
+
+.PHONY: benchmark-product-random-fpm
+benchmark-product-random-fpm:
+	@echo "Running random product ID benchmark against FPM (port 8088)..."
+	BASE_URL=$(FPM_URL) k6 run k6/get_product_by_id_random.js
+
+.PHONY: benchmark-product-random-all
+benchmark-product-random-all:
+	@echo "Running random product ID benchmarks against all environments..."
+	@echo ""
+	$(MAKE) benchmark-product-random-franken
+	@echo ""
+	@echo ""
+	$(MAKE) benchmark-product-random-franken-worker
+	@echo ""
+	@echo ""
+	$(MAKE) benchmark-product-random-fpm
+
+# Product by ID benchmark targets (cycling through IDs from /projection)
+.PHONY: benchmark-product-projection-franken
+benchmark-product-projection-franken:
+	@echo "Running cycling product ID benchmark (Projection) against Franken (port 8080)..."
+	BASE_URL=$(FRANKEN_URL) k6 run k6/get_product_by_id_projection.js
+
+.PHONY: benchmark-product-projection-franken-worker
+benchmark-product-projection-franken-worker:
+	@echo "Running cycling product ID benchmark (Projection) against Franken Worker (port 8081)..."
+	BASE_URL=$(FRANKEN_WORKER_URL) k6 run k6/get_product_by_id_projection.js
+
+.PHONY: benchmark-product-projection-fpm
+benchmark-product-projection-fpm:
+	@echo "Running cycling product ID benchmark (Projection) against FPM (port 8088)..."
+	BASE_URL=$(FPM_URL) k6 run k6/get_product_by_id_projection.js
+
+.PHONY: benchmark-product-projection-all
+benchmark-product-projection-all:
+	@echo "Running cycling product ID benchmarks (Projection) against all environments..."
+	@echo ""
+	$(MAKE) benchmark-product-projection-franken
+	@echo ""
+	@echo ""
+	$(MAKE) benchmark-product-projection-franken-worker
+	@echo ""
+	@echo ""
+	$(MAKE) benchmark-product-projection-fpm
 
 # Projection rebuild targets
 .PHONY: rebuild-projections

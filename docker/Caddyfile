@@ -11,18 +11,6 @@
 			file ./public/index.php
 			num 16 # 2 workers per CPU core (8 cores * 2) - optimal balance
 		}
-
-		# Aggressive PHP optimizations for worker mode
-		#php_ini memory_limit 512M
-		#php_ini opcache.enable 1
-		#php_ini opcache.memory_consumption 256
-		#php_ini opcache.interned_strings_buffer 16
-		#php_ini opcache.max_accelerated_files 20000
-		#php_ini opcache.validate_timestamps 0
-		#php_ini opcache.jit 1255
-		#php_ini opcache.jit_buffer_size 128M
-		#php_ini realpath_cache_size 4M
-		#php_ini realpath_cache_ttl 600
 	}
 }
 

@@ -16,27 +16,28 @@ Check missing dependencies.
 ### Required Dependencies
 
 1. **Docker & Docker Compose**
-   - [Docker Desktop](https://www.docker.com/products/docker-desktop/) (includes Docker Compose)
-   - Or install separately: [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/)
+    - [Docker Desktop](https://www.docker.com/products/docker-desktop/) (includes Docker Compose)
+    - Or install separately: [Docker](https://docs.docker.com/get-docker/)
+      and [Docker Compose](https://docs.docker.com/compose/install/)
 
 2. **Make**
-   - **macOS**: Usually pre-installed, or install via Homebrew: `brew install make`
-   - **Linux**: Install via package manager:
-     - Ubuntu/Debian: `sudo apt-get install make`
-     - CentOS/RHEL: `sudo yum install make`
-     - Fedora: `sudo dnf install make`
+    - **macOS**: Usually pre-installed, or install via Homebrew: `brew install make`
+    - **Linux**: Install via package manager:
+        - Ubuntu/Debian: `sudo apt-get install make`
+        - CentOS/RHEL: `sudo yum install make`
+        - Fedora: `sudo dnf install make`
 
 3. **K6 (Load Testing Tool)**
-   - **macOS**: `brew install k6`
-   - **Linux**:
-     - Ubuntu/Debian: `sudo gpg -k`
-     ```bash
-     sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
-     echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
-     sudo apt-get update
-     sudo apt-get install k6
-     ```
-     - CentOS/RHEL/Fedora: `sudo yum install k6` or `sudo dnf install k6`
+    - **macOS**: `brew install k6`
+    - **Linux**:
+        - Ubuntu/Debian: `sudo gpg -k`
+      ```bash
+      sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+      echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+      sudo apt-get update
+      sudo apt-get install k6
+      ```
+        - CentOS/RHEL/Fedora: `sudo yum install k6` or `sudo dnf install k6`
 
 ### Verify Installation
 
@@ -52,21 +53,10 @@ This will check for Docker, Docker Compose, Make, and K6 and report their status
 
 Before starting the application, you need to pull the required Docker images. You can do this in two ways:
 
-**Option 1: Pull all images at once**
+**Pull all images at once**
+
 ```bash
 make pull-docker
-```
-
-**Option 2: Pull individual images**
-```bash
-# Pull base images
-docker pull redis:7-alpine
-docker pull php:8.4-fpm
-
-# Pull additional images as needed
-docker pull prom/prometheus
-docker pull grafana/grafana
-docker pull caddy:2-alpine
 ```
 
 This ensures all required Docker images are available locally before starting the services.
@@ -74,15 +64,17 @@ This ensures all required Docker images are available locally before starting th
 ## Quick Start
 
 1. **Build and start all services:**
-   ```bash
-   make up
-   ```
+
+```bash
+make up
+```
 
 2. **Set up the database and seed data:**
-   ```bash
-   make migrate
-   make seed
-   ```
+
+```bash
+make migrate
+make seed
+```
 
 Go to http://localhost:8088
 
@@ -95,7 +87,6 @@ make up-opcache-dashboard
 open - http://localhost:42042/opcache/status
 
 https://www.php.net/manual/en/opcache.configuration.php#:~:text=on%20all%20architectures.-,opcache.max_accelerated_files,-int
-
 
 ```
 find . -type f -name "*.php" | wc -l
@@ -115,45 +106,49 @@ aa-nginx.conf - location ~ ^/fpm-status$ {
 ```
 
 **fpm-exporter**
+
 ```
 make up-exporter
 make ps | grep exporter
 ```
 
-go to http://localhost:9253/metrics
+Go to http://localhost:9253/metrics
 
 ```
 make up-prometheus
 make ps | grep prom
 ```
 
-go to http://localhost:9090/targets?search=
+Go to http://localhost:9090/targets?search=
 
 ```
 make up-grafana
 make ps | grep grafana
 ```
 
-# show target prom sources
+### Show target prom sources
 
 http://localhost:9090/targets?search=
 
-# view grafana dashboard
+### view grafana dashboard
 
 open http://localhost:3000
 username: croatia
 password: croatia
 
-# show grafana fpm/opcache dashboard
+### show grafana fpm/opcache dashboard
 
-make k6-fpm-products-db
-see k6/report-UTC-xxxxxxx.html
-i.e: k6/report-products-db-2025-07-04T16-59-09.331Z.html
+```bash
+make benchmark-product-random-fpm
+```
 
-check grafana output - http://localhost:3000
+see file inside k6/report-UTC-xxxxxxx.html
+> i.e: k6/report-product-by-id-random-8088-2025-11-25T10-45-06.548Z.html
 
-see fpm active processes. change to 1m (on left side)
-http://localhost:9090/graph?g0.expr=phpfpm_active_processes&g0.tab=0&g0.display_mode=lines&g0.show_exemplars=0&g0.range_input=1m
+Check grafana output - http://localhost:3000
+
+See fpm active processes. change to 5m (on left side)
+http://localhost:3000/d/phpfpm-performance/php-fpm-performance-dashboard?orgId=1&from=now-5m&to=now&timezone=browser&var-datasource=PBFA97CFB590B2093&var-pool=www&refresh=5s
 
 **Normal Data Fetch (mysql)**
 
@@ -161,13 +156,16 @@ show FPM file
 show fpm metrics
 
 - http://localhost:8088/fpm-status
-- show FPM calculation logic (in slides) - todo add graphic to this readme.
-- show FPM calculator website - https://spot13.com/pmcalculator/
+- FPM calculation logic (in slides) - todo add graphic to this readme.
+  Right-size PHP-FPM Pools
+  Tune pm.max_children, pm.start_servers, etc., to match your available RAM and expected concurrency
+  ![img_1.png](img_1.png)
+- FPM calculator website - https://spot13.com/pmcalculator/
+  ![img.png](img.png)
 - find special command to calculate "Stuff", i think cpu thread count, and stuff, - it's inside slides and I think on
 - matheus blog
 
-# run this inside the container, during k6
-
+## run this inside the container, during k6
 
 ### check real-time usage of fpm processes
 
@@ -176,12 +174,10 @@ ps -ylC php-fpm --sort:rss
 ```
 
 ### calculate process memory
+
 ``` bash
 ps --no-headers -o "rss,cmd" -C php-fpm | awk '{ sum+=$1} END { print sum/NR/1024 }'
 ```
-
-
-
 
 PHP-FPM uses a process manager to handle incoming requests efficiently. The configuration directly affects what you see
 in system monitoring tools like `htop`.
@@ -284,9 +280,11 @@ A detailed PHP-FPM and OPcache monitoring dashboard is available in Grafana. It 
 
 ## FrankenPHP Configuration
 
-This project uses FrankenPHP (a modern PHP runtime built on Caddy) with two different configurations for performance comparison and monitoring.
+This project uses FrankenPHP (a modern PHP runtime built on Caddy) with two different configurations for performance
+comparison and monitoring.
 
 **See [`frankenphp.md`](frankenphp.md) for complete FrankenPHP documentation including:**
+
 - Service configuration and differences
 - Auto-reload (file watching) setup
 - Caddy configuration and environment variables

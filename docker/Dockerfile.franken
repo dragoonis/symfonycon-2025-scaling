@@ -8,6 +8,8 @@ RUN install-php-extensions \
 	zip \
 	opcache
 
+COPY --chown=www-data:www-data ./docker/symfony.prod.ini $PHP_INI_DIR/php.ini
+
 RUN apt update -y && apt install -y jq
 
 COPY --chown=www-data:www-data . .

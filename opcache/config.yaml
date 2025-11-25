@@ -8,7 +8,7 @@ clusters:
         hosts:
           - "app"
       franken:
-        urlPattern: "http://{host}:8080/agent-pull.php"
+        urlPattern: "http://{host}:80/agent-pull.php"
         hosts:
           - "franken"
           - "franken-worker"

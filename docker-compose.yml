@@ -6,6 +6,8 @@ services:
     tty: true
     ports:
       - "8088:80"
+    env_file:
+      - .env
     volumes:
       - .:/var/www/html
       - ./docker/fpm.conf:/usr/local/etc/php-fpm.d/zz-docker.conf
@@ -23,6 +25,8 @@ services:
       - .:/var/www/html
       - ./docker/Caddyfile.regular:/etc/frankenphp/Caddyfile
     tty: true
+    env_file:
+      - .env
     environment:
       SERVER_NAME: ":80"
     networks:
@@ -41,6 +45,8 @@ services:
       - caddy_config:/config
       - ./docker/Caddyfile:/etc/frankenphp/Caddyfile
     tty: true
+    env_file:
+      - .env
     environment:
       APP_RUNTIME: "Runtime\\FrankenPhpSymfony\\Runtime"
       SERVER_NAME: ":80"

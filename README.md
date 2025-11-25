@@ -150,84 +150,173 @@ Check grafana output - http://localhost:3000
 See fpm active processes. change to 5m (on left side)
 http://localhost:3000/d/phpfpm-performance/php-fpm-performance-dashboard?orgId=1&from=now-5m&to=now&timezone=browser&var-datasource=PBFA97CFB590B2093&var-pool=www&refresh=5s
 
-**Normal Data Fetch (mysql)**
+## PHP-FPM Performance Monitoring & Optimization
 
-show FPM file
-show fpm metrics
+### Accessing FPM Status & Metrics
 
-- http://localhost:8088/fpm-status
-- FPM calculation logic (in slides) - todo add graphic to this readme.
-  Right-size PHP-FPM Pools
-  Tune pm.max_children, pm.start_servers, etc., to match your available RAM and expected concurrency
-  ![img_1.png](img_1.png)
-- FPM calculator website - https://spot13.com/pmcalculator/
-  ![img.png](img.png)
-- find special command to calculate "Stuff", i think cpu thread count, and stuff, - it's inside slides and I think on
-- matheus blog
+**FPM Status Page:**
+- URL: http://localhost:8088/fpm-status
+- Shows real-time process states, active/idle workers, queue length
+- Configured in `fpm.conf` with `pm.status_path = /fpm-status`
 
-## run this inside the container, during k6
+**Prometheus Metrics:**
+- URL: http://localhost:9253/metrics (via php-fpm-exporter)
+- Scraped by Prometheus for historical data and alerting
+- Visualized in Grafana dashboards
 
-### check real-time usage of fpm processes
+### Right-Sizing PHP-FPM Pool Configuration
 
+PHP-FPM pool sizing is critical for optimal performance. You need to balance:
+- Available RAM
+- Expected concurrent requests
+- Per-request memory usage
+- Response time requirements
+
+**Configuration Logic:**
+
+![FPM Pool Sizing](docs/fpm-pool-sizing.png)
+
+**Formula for `pm.max_children`:**
 ```
-ps -ylC php-fpm --sort:rss
+pm.max_children = (Total Available RAM - RAM for other services) / Average PHP Process Memory
 ```
 
-### calculate process memory
+**Example Calculation:**
+```
+Server RAM: 4GB (4096 MB)
+System + MySQL: 1GB (1024 MB)
+Average PHP process: 50 MB
 
-``` bash
-ps --no-headers -o "rss,cmd" -C php-fpm | awk '{ sum+=$1} END { print sum/NR/1024 }'
+pm.max_children = (4096 - 1024) / 50 = 61 processes
 ```
 
-PHP-FPM uses a process manager to handle incoming requests efficiently. The configuration directly affects what you see
-in system monitoring tools like `htop`.
+**FPM Calculator Tool:**
 
-**Key Configuration Settings:**
+Use the interactive calculator at https://spot13.com/pmcalculator/ to determine optimal settings:
+
+![FPM Calculator](docs/fpm-calculator.png)
+
+### Key Configuration Settings
+
+PHP-FPM uses a process manager to handle incoming requests efficiently. The configuration directly affects what you see in system monitoring tools like `htop`.
 
 ```ini
-pm = dynamic
-pm.max_children = 50
-pm.start_servers = 5
-pm.min_spare_servers = 5
-pm.max_spare_servers = 35
+pm = dynamic                    # Process manager type (static, dynamic, ondemand)
+pm.max_children = 50            # Maximum number of child processes
+pm.start_servers = 5            # Number of children created on startup
+pm.min_spare_servers = 5        # Minimum idle processes
+pm.max_spare_servers = 35       # Maximum idle processes
+pm.max_requests = 500           # Requests before process restart (helps with memory leaks)
 ```
 
-**Important:** `pm.start_servers = 5` means you will see **5 child processes** in `htop` when the container starts, plus
-1 master process (total 6 PHP-FPM processes).
+**Process Manager Types:**
+- `static` - Fixed number of processes (best for consistent load)
+- `dynamic` - Scales between min/max spare servers (good for variable load)
+- `ondemand` - Creates processes on demand (best for low/intermittent traffic)
 
-### Process Hierarchy in htop
+**Important:** `pm.start_servers = 5` means you will see **5 child processes** in `htop` when the container starts, plus 1 master process (total 6 PHP-FPM processes).
+
+### Process Hierarchy and Behavior
 
 When you run `htop` or `ps aux | grep php-fpm`, you'll see:
 
 ```
-1 × php-fpm: master process
-5 × php-fpm: pool www (child processes)
+1 × php-fpm: master process (manages child processes)
+5 × php-fpm: pool www (child processes handling requests)
 ```
 
-**Process Behavior:**
+**Process Roles:**
+- **Master Process** - Manages child processes, handles signals, doesn't serve requests
+- **Child Processes** - Handle actual HTTP requests from nginx/web server
+- **Dynamic Scaling** - Processes spawn/die based on load (between `min_spare_servers` and `max_spare_servers`)
 
-- **Master Process**: Manages child processes, doesn't handle requests
-- **Child Processes**: Handle actual HTTP requests
-- **Dynamic Scaling**: Child processes spawn/die based on load (between min_spare_servers and max_spare_servers)
+**Process States:**
+- `Idle` - Waiting for requests
+- `Running` - Actively processing a request
+- `Finishing` - Completing request cleanup
+- `Reading headers` - Parsing request headers
+- `Ending` - Process is shutting down
 
-### Monitoring PHP-FPM Processes
+## Monitoring Commands (Run Inside Container During k6 Tests)
 
-**View current processes in container:**
+### Check Real-Time Process Usage
 
+**List processes sorted by memory (RSS):**
 ```bash
-# Inside container
-ps aux | grep php-fpm
-
-# Or count active processes
-ps --no-headers -o "rss,cmd" -C php-fpm | wc -l
+ps -ylC php-fpm --sort:rss
 ```
 
-**Calculate average memory usage per process:**
-
+**Watch process states in real-time:**
 ```bash
-# Run this inside the container during k6 testing
+watch -n 1 'ps aux | grep php-fpm'
+```
+
+**Count active vs idle processes:**
+```bash
+curl -s http://localhost:8088/fpm-status | grep -E "active|idle"
+```
+
+### Calculate Process Memory
+
+**Average memory per process (in MB):**
+```bash
 ps --no-headers -o "rss,cmd" -C php-fpm | awk '{ sum+=$1} END { print sum/NR/1024 }'
 ```
+
+**Total memory usage by all PHP-FPM processes:**
+```bash
+ps --no-headers -o "rss,cmd" -C php-fpm | awk '{ sum+=$1 } END { print sum/1024 " MB" }'
+```
+
+**Memory usage per individual process:**
+```bash
+ps -o pid,rss,cmd -C php-fpm | awk 'NR>1 {print $1, $2/1024 " MB", $3}'
+```
+
+### Advanced Monitoring
+
+**Get CPU usage by PHP-FPM:**
+```bash
+ps -C php-fpm -o %cpu,pid,cmd --no-headers
+```
+
+**Find the most memory-intensive PHP-FPM process:**
+```bash
+ps --no-headers -o "rss,pid,cmd" -C php-fpm | sort -rn | head -5
+```
+
+**Count processes by state:**
+```bash
+# Requires status page to be enabled
+curl -s http://localhost:8088/fpm-status?full | grep -c "state: Idle"
+curl -s http://localhost:8088/fpm-status?full | grep -c "state: Running"
+```
+
+### Understanding the Output
+
+**RSS (Resident Set Size):**
+- Physical memory used by the process
+- Shown in KB by default
+- Divide by 1024 for MB
+
+**VSZ (Virtual Memory Size):**
+- Total virtual memory allocated
+- Usually much larger than RSS
+- Includes shared libraries
+
+**Example Output Interpretation:**
+```bash
+$ ps -ylC php-fpm --sort:rss
+  RSS    PID  CMD
+52340  12345  php-fpm: master process
+48512  12346  php-fpm: pool www
+50240  12347  php-fpm: pool www
+```
+
+This shows:
+- Master process using ~51 MB
+- Child processes using ~47-49 MB each
+- Total usage: ~150 MB for 3 processes
 
 ### Composer Autoload Optimization
 

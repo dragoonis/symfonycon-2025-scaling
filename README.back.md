@@ -181,8 +181,6 @@ ps --no-headers -o "rss,cmd" -C php-fpm | awk '{ sum+=$1} END { print sum/NR/102
 ```
 
 
-
-
 PHP-FPM uses a process manager to handle incoming requests efficiently. The configuration directly affects what you see
 in system monitoring tools like `htop`.
 

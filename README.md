@@ -5,14 +5,6 @@ testing. All common tasks are managed via the Makefile.
 
 ## Setup
 
-Before running this project, ensure you have the following dependencies installed:
-
-Check missing dependencies.
-
-```bash
-./test-system.sh
-```
-
 ### Required Dependencies
 
 1. **Docker & Docker Compose**
@@ -92,9 +84,13 @@ https://www.php.net/manual/en/opcache.configuration.php#:~:text=on%20all%20archi
 
 ```
 find . -type f -name "*.php" | wc -l
+```
 
+```
 opcache.max_accelerated_files=16087
 ```
+
+Prime Number: 10000 -> 10007 (nearest prime)
 
 ### show fpm and opcache dashboard GUI
 
@@ -299,13 +295,6 @@ ps -C php-fpm -o %cpu,pid,cmd --no-headers
 ps --no-headers -o "rss,pid,cmd" -C php-fpm | sort -rn | head -5
 ```
 
-**Count processes by state:**
-```bash
-# Requires status page to be enabled
-curl -s http://localhost:8088/fpm-status?full | grep -c "state: Idle"
-curl -s http://localhost:8088/fpm-status?full | grep -c "state: Running"
-```
-
 ### Understanding the Output
 
 **RSS (Resident Set Size):**
@@ -395,3 +384,6 @@ A detailed PHP-FPM and OPcache monitoring dashboard is available in Grafana. It 
 - Alerts and color-coded panels for quick health checks
 
 **See [`grafana-dashboard.md`](grafana-dashboard.md) for a full description of all panels and dashboard features.**
+
+
+## Show symfony.prod.ini file

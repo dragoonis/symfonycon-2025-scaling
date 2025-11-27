@@ -176,7 +176,7 @@ make ps | grep exporter
 
 Go to **URL:** http://localhost:9253/metrics
 
-![FPM Exporter Metrics](docs/images/prometheus-fpm.png)
+![FPM Exporter Metrics](docs/images/fpm-exporter.png)
 
 **Key Metrics:**
 - `phpfpm_up` - FPM service health (1=up, 0=down)

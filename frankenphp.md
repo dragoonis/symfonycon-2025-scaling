@@ -20,7 +20,7 @@ Go to - http://localhost:8080/
 
 Check franken metric is up
 
-go to http://localhost:2020/metrics
+go to http://localhost:2019/metrics
 
 Find CTRL / CMD + F `frankenphp_total_threads`
 

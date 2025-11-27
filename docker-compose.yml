@@ -81,7 +81,6 @@ services:
 
   prometheus:
     image: prom/prometheus:v2.53.4
-    container_name: prometheus
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     command:
@@ -93,7 +92,6 @@ services:
 
   grafana:
     image: grafana/grafana:latest
-    container_name: grafana
     depends_on:
       - prometheus
     ports:

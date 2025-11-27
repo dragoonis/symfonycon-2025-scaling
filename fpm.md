@@ -180,7 +180,6 @@ Go to **URL:** http://localhost:9253/metrics
 
 **Key Metrics:**
 - `phpfpm_up` - FPM service health (1=up, 0=down)
-- `phpfpm_processes_total` - Total number of processes
 - `phpfpm_active_processes` - Currently active processes
 - `phpfpm_idle_processes` - Idle processes waiting for requests
 - `phpfpm_max_active_processes` - Peak active processes
@@ -201,7 +200,7 @@ make ps | grep prom
 
 http://localhost:9090/targets?search=
 
-![Prometheus Targets](docs/images/fpm-exporter.png)
+![Prometheus Targets](docs/images/prometheus-fpm.png)
 
 Verify the FPM exporter target is "UP" and being scraped successfully.
 

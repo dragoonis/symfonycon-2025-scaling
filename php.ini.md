@@ -378,18 +378,6 @@ intl.default_locale="en"
 - Currency display: `$1,234.56` vs `€1.234,56`
 - Text collation: Sorting order for strings
 
-#### Unicode Detection
-```ini
-zend.detect_unicode=0
-```
-**Purpose:** Disables automatic Unicode detection for performance.
-
-**How It Works:**
-- **Enabled:** PHP checks each file for Unicode BOM (Byte Order Mark)
-- **Disabled:** Skips Unicode detection → Faster file processing
-
-**Trade-off:** Manual Unicode handling required but performance gained
-
 ### Session Management
 
 #### Session Lifetime

@@ -59,7 +59,8 @@ opcache.enable_cli=1
 
 ```ini
 opcache.validate_timestamps=0
-opcache.revalidate_freq=0
+; when timestamps validation is off, this setting no longer has any use
+;opcache.revalidate_freq=0 
 ```
 
 **Purpose:** Controls whether OPcache checks if PHP files have been modified since they were cached.
@@ -68,7 +69,7 @@ opcache.revalidate_freq=0
 
 With `opcache.validate_timestamps=1` (development):
 1. PHP file requested
-2. OPcache checks: "Has this file been modified since I cached it?"
+2. OPcache checks each opcache.revalidate_freq secs: "Has this file been modified since I cached it?"
 3. If modified → Recompile and cache new version
 4. If unchanged → Use cached bytecode
 5. Serve request
@@ -79,7 +80,7 @@ With `opcache.validate_timestamps=0` (production):
 3. Serve request immediately
 
 **Production Setting:** `validate_timestamps=0` for maximum performance
-**Development Setting:** `validate_timestamps=1` to see code changes immediately
+**Development Setting:** `validate_timestamps=1` and `opcache.revalidate_freq=0` to see code changes immediately
 
 #### Memory Configuration
 
@@ -377,18 +378,6 @@ intl.default_locale="en"
 - Currency display: `$1,234.56` vs `€1.234,56`
 - Text collation: Sorting order for strings
 
-#### Unicode Detection
-```ini
-zend.detect_unicode=0
-```
-**Purpose:** Disables automatic Unicode detection for performance.
-
-**How It Works:**
-- **Enabled:** PHP checks each file for Unicode BOM (Byte Order Mark)
-- **Disabled:** Skips Unicode detection → Faster file processing
-
-**Trade-off:** Manual Unicode handling required but performance gained
-
 ### Session Management
 
 #### Session Lifetime
@@ -404,6 +393,8 @@ session.gc_maxlifetime=7200
 4. Next request → Session not found, user must re-authenticate
 
 #### Session Startup
+
+This has been default Off since for ever and . 
 ```ini
 session.auto_start=Off
 ```
